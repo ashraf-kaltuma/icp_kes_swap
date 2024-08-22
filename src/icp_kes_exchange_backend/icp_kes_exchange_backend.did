@@ -1,12 +1,29 @@
 type Error = variant {
   EmptyFields : record { msg : text };
+  NotFound : record { msg : text };
+  IncrementCounterFailed : record { msg : text };
+  Unauthorized : record { msg : text };
   AlreadyExists : record { msg : text };
+  InvalidQuery : record { msg : text };
   InvalidEmail : record { msg : text };
   InvalidPhoneNumber : record { msg : text };
   UserNotFound : record { msg : text };
 };
-type Result = variant { Ok : User; Err : Error };
-type Result_1 = variant { Ok : User; Err : text };
+type Result = variant { Ok : SwapRequest; Err : Error };
+type Result_1 = variant { Ok : User; Err : Error };
+type Result_2 = variant { Ok : vec User; Err : Error };
+type SwapRequest = record {
+  id : nat64;
+  status : SwapStatus;
+  kenyan_shillings_id : nat64;
+  requested_by_id : nat64;
+  created_at : nat64;
+};
+type SwapRequestPayload = record {
+  kenyan_shillings_id : nat64;
+  requested_by_id : nat64;
+};
+type SwapStatus = variant { Rejected; Accepted; Pending };
 type User = record {
   id : nat64;
   name : text;
@@ -16,7 +33,9 @@ type User = record {
 };
 type UserPayload = record { name : text; email : text; phone_number : text };
 service : {
-  create_user_profile : (UserPayload) -> (Result);
+  create_swap_request : (SwapRequestPayload) -> (Result);
+  create_user_profile : (UserPayload) -> (Result_1);
   get_user_profile : (nat64) -> (Result_1) query;
+  search_user : (text) -> (Result_2) query;
   update_user_profile : (nat64, UserPayload) -> (Result_1);
 }
